@@ -1,0 +1,32 @@
+.ant-table-body {
+  background-color: rgb(194, 253, 248);
+}
+
+.ant-carousel .slick-slide {
+  text-align: center;
+  height: 260px;
+  line-height: 260px;
+  background: #364d79;
+}
+
+.ant-carousel .slick-slide h3 {
+  color: #fff;
+}
+
+.ant-card-body {
+  padding: 0px;
+}
+
+.note {
+  border: 2px solid black;
+  border-radius: 5px;
+  margin: 2% 3%;
+}
+.ant-calendar-picker {
+  margin: 1% 10%;
+}
+
+.ant-card-head-wrapper {
+  font-size: 24px;
+  background-color: lightcyan;
+}
