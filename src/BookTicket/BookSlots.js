@@ -1,7 +1,9 @@
 import React from "react";
-import { Table, DatePicker, Button, Row, Col } from "antd";
+import { Table, DatePicker, Button, Row, Col, Card } from "antd";
 import VenueDetails from "./VenueDetails";
 import NearestVenues from "./NearestVenues";
+
+const availability = ["Booked", "Normal", "NA", "Selected"];
 const columns = [
   {
     title: "Time Slot",
@@ -9,7 +11,7 @@ const columns = [
   },
   {
     title: "Price",
-    dataIndex: "age"
+    dataIndex: "price"
   },
   {
     title: " Seats Filled",
@@ -26,32 +28,32 @@ for (let i = 0; i < 24; i++) {
   data.push({
     key: i,
     name: `${i} - ${i + 1}`,
-    age: 32,
-    address: `London, Park Lane no. ${i}`
+    price: Math.floor(Math.random() * 500 + 100),
+    address: `${i}/${i + 10}`,
+    status: availability[Math.floor(Math.random() * 4)]
   });
 }
 
 class BookSlots extends React.Component {
   state = {
-    selectedRowKeys: [], // Check here to configure the default column
-    loading: false,
-    selectNumberOfSeats: "1"
+    selectedRowKeys: [], // Check here to configure the default column,
+    selectedRows: [],
+    selectNumberOfSeats: 1,
+    selectedData: [],
+    price: 0
   };
 
-  start = () => {
-    this.setState({ loading: true });
-    // ajax request after empty completing
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-        loading: false
-      });
-    }, 1000);
+  onSelectChange = (selectedRowKeys, selectedRows) => {
+    console.log("selectedRowKeys changed: ", selectedRowKeys, selectedRows);
+    this.setState({
+      selectedRowKeys,
+      selectedData: selectedRows
+    });
   };
-
-  onSelectChange = selectedRowKeys => {
-    console.log("selectedRowKeys changed: ", selectedRowKeys);
-    this.setState({ selectedRowKeys });
+  getPrice = record => {
+    this.setState({
+      price: record.price
+    });
   };
   decrement = () => {
     if (this.state.selectNumberOfSeats > 0)
@@ -63,57 +65,90 @@ class BookSlots extends React.Component {
     this.setState({ selectNumberOfSeats: this.state.selectNumberOfSeats + 1 });
   };
   render() {
-    const { loading, selectedRowKeys } = this.state;
+    const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange
+      onChange: this.onSelectChange,
+      getCheckboxProps: record => ({
+        disabled: record.status === "NA" // Column configuration not to be checked
+      })
     };
-    const hasSelected = selectedRowKeys.length > 0;
+    const rowSelection1 = {
+      type: "radio",
+      onSelect: this.getPrice
+    };
+
     return (
       <div>
-        <VenueDetails />
-        <span className="note">
-          <b>Note : </b>You Can Select Multiple Seats{" "}
-        </span>
-        &nbsp;&nbsp;&nbsp;
-        <Button onClick={this.decrement}>
-          {/* <Icon type="minus-square" /> */} -
-        </Button>
-        &nbsp;&nbsp;
-        {this.state.selectNumberOfSeats} &nbsp;&nbsp;
-        <Button onClick={this.increment}>
-          {/* <Icon type="plus-square" /> */} +
-        </Button>
-        <br />
-        <DatePicker size="large" />
-        <div style={{ marginBottom: 16 }}>
-          <Button
-            type="primary"
-            onClick={this.start}
-            disabled={!hasSelected}
-            loading={loading}
-          >
-            Reload
-          </Button>
-          <span style={{ marginLeft: 8 }}>
-            {hasSelected ? `Selected ${selectedRowKeys.length} items` : ""}
-          </span>
-        </div>
         <Row>
-          <Col lg={{ span: 15 }}>
-            <Table
-              rowSelection={rowSelection}
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-            />
-          </Col>
           <Col lg={{ span: 2 }} />
-          <Col lg={{ span: 6 }}>
-            <NearestVenues />
+          <Col lg={{ span: 20 }}>
+            <VenueDetails />
+            <span className="note">
+              <b>Note : </b>You Can Select Multiple Seats{" "}
+            </span>
+            &nbsp;&nbsp;&nbsp;
+            <Button onClick={this.decrement}>
+              {/* <Icon type="minus-square" /> */} -
+            </Button>
+            &nbsp;&nbsp;
+            {this.state.selectNumberOfSeats} &nbsp;&nbsp;
+            <Button onClick={this.increment}>
+              {/* <Icon type="plus-square" /> */} +
+            </Button>
+            <br />
+            <DatePicker size="large" />
+            <Row>
+              <Col lg={{ span: 10 }}>
+                <Table
+                  rowSelection={rowSelection}
+                  columns={columns}
+                  dataSource={data}
+                  pagination={false}
+                />
+              </Col>
+              <Col lg={{ span: 1 }} />
+              <Col lg={{ span: 8 }}>
+                <NearestVenues />
+              </Col>
+            </Row>
+            <br />
+            <Row>
+              <Col lg={{ span: 10 }}>
+                <Table
+                  rowSelection={rowSelection1}
+                  columns={columns}
+                  dataSource={this.state.selectedData}
+                  pagination={false}
+                />
+              </Col>
+
+              <Col lg={{ span: 1 }} />
+              <Col lg={{ span: 3 }}>
+                <Card> Select 1 slot of all the slots </Card>
+              </Col>
+              <Col lg={{ span: 1 }} />
+              <Col lg={{ span: 3 }}>
+                <Card>
+                  When minimum criteria reaches, your slot will get finalised
+                </Card>
+              </Col>
+            </Row>
+            <span className="note">
+              Total Price: {this.state.selectNumberOfSeats * this.state.price}
+            </span>
+            <br />
+            <Row>
+              <Col lg={{ offset: 6 }}>
+                <Button style={{ textAlign: "center" }}>
+                  Book Tickets and Pay
+                </Button>
+              </Col>
+            </Row>
           </Col>
+
+          <Col lg={{ span: 2 }} />
         </Row>
-        <Button>Book Tickets and Pay</Button>
       </div>
     );
   }
