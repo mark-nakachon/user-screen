@@ -1,6 +1,9 @@
 import React from "react";
 import { Carousel, Card, Rate, Row, Col } from "antd";
 
+const style = {
+  margin: "0px"
+};
 class VenueDetails extends React.Component {
   render() {
     return (
@@ -20,43 +23,29 @@ class VenueDetails extends React.Component {
               <h3>Venue Image 4</h3>
             </div>
           </Carousel>
-        </Card>
-
-        <Card bordered={false}>
           <Row>
-            <Col xs={{ span: 6 }} lg={{ span: 3 }}>
-              Name:
+            <Col xs={{ span: 12 }} lg={{ span: 16 }}>
+              <Row>
+                {" "}
+                <h2 style={style}>M2K</h2>
+              </Row>
+              Sector-3 , Rohini
             </Col>
-            <Col xs={{ span: 18 }} lg={{ span: 8 }}>
-              ABCDEF
-            </Col>
-            <Col xs={{ span: 6 }} lg={{ span: 3 }}>
-              Ameneties:
-            </Col>
-            <Col xs={{ span: 18 }} lg={{ span: 8 }}>
-              WiFi, Parking
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={{ span: 6 }} lg={{ span: 3 }}>
-              Address:
-            </Col>
-            <Col xs={{ span: 18 }} lg={{ span: 8 }}>
-              asdfg,yghjhbh
-            </Col>
-            <Col xs={{ span: 6 }} lg={{ span: 3 }}>
+            <Col
+              xs={{ span: 12 }}
+              lg={{ span: 8 }}
+              style={{ textAlign: "right" }}
+            >
               Ratings:
-            </Col>
-            <Col xs={{ span: 18 }} lg={{ span: 8 }}>
-              <Rate disabled defaultValue={2} />
+              <Rate disabled defaultValue={2} style={{ fontSize: "18px" }} />
             </Col>
           </Row>
           <Row>
             <Col xs={{ span: 6 }} lg={{ span: 3 }}>
-              Description:
+              Ameneties :
             </Col>
-            <Col xs={{ span: 5 }} lg={{ span: 21 }}>
-              qwertyuiopasdfghjklzxcvbnm
+            <Col xs={{ span: 18 }} lg={{ span: 7 }}>
+              WiFi, Parking
             </Col>
           </Row>
         </Card>
