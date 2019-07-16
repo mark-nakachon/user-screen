@@ -1,27 +1,11 @@
 import React from "react";
+import moment from "moment";
 import { Table, DatePicker, Button, Row, Col, Card } from "antd";
 import VenueDetails from "./VenueDetails";
 import NearestVenues from "./NearestVenues";
+import "../index.css";
 
 const availability = ["Booked", "Normal", "NA", "Selected"];
-const columns = [
-  {
-    title: "Time Slot",
-    dataIndex: "name"
-  },
-  {
-    title: "Price",
-    dataIndex: "price"
-  },
-  {
-    title: " Seats Filled",
-    dataIndex: "address"
-  },
-  {
-    title: " Status",
-    dataIndex: "status"
-  }
-];
 
 const data = [];
 for (let i = 0; i < 24; i++) {
@@ -40,20 +24,52 @@ class BookSlots extends React.Component {
     selectedRows: [],
     selectNumberOfSeats: 1,
     selectedData: [],
-    price: 0
+    price: 0,
+    columns: [
+      {
+        title: "Time Slot",
+        dataIndex: "name"
+      },
+      {
+        title: "Price",
+        dataIndex: "price"
+      },
+      {
+        title: " Seats Filled",
+        dataIndex: "address"
+      },
+      {
+        title: " Status",
+        dataIndex: "status"
+      }
+    ]
   };
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
-    console.log("selectedRowKeys changed: ", selectedRowKeys, selectedRows);
+    //  console.log("selectedRowKeys changed: ", selectedRowKeys, selectedRows);
     this.setState({
       selectedRowKeys,
-      selectedData: selectedRows
+      selectedData: selectedRows,
+      price: selectedRows.reduce((acc, curr) => acc + curr.price, 0)
     });
+    // console.log(...selectedRows.map(sel => sel.price));
   };
-  getPrice = record => {
+
+  /* getPrice = record => {
     this.setState({
       price: record.price
     });
+  };*/
+  changePrice = () => {
+    this.setState({
+      price: Math.max(...this.state.selectedData.map(sel => sel.price))
+    });
+  };
+  disabledDate = current => {
+    // Can not select days before today and after 15 days
+    return (
+      current < moment().startOf("day") || current > moment().add(14, "days")
+    );
   };
   decrement = () => {
     if (this.state.selectNumberOfSeats > 0)
@@ -64,8 +80,11 @@ class BookSlots extends React.Component {
   increment = () => {
     this.setState({ selectNumberOfSeats: this.state.selectNumberOfSeats + 1 });
   };
+
   render() {
-    const { selectedRowKeys } = this.state;
+    console.log(this.state.price);
+
+    const { selectedRowKeys, columns } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
@@ -73,10 +92,10 @@ class BookSlots extends React.Component {
         disabled: record.status === "NA" // Column configuration not to be checked
       })
     };
-    const rowSelection1 = {
+    /* const rowSelection1 = {
       type: "radio",
       onSelect: this.getPrice
-    };
+    }; */
 
     return (
       <div>
@@ -84,22 +103,42 @@ class BookSlots extends React.Component {
           <Col lg={{ span: 2 }} />
           <Col lg={{ span: 20 }}>
             <VenueDetails />
-            <span className="note">
-              <b>Note : </b>You Can Select Multiple Seats{" "}
-            </span>
-            &nbsp;&nbsp;&nbsp;
-            <Button onClick={this.decrement}>
-              {/* <Icon type="minus-square" /> */} -
-            </Button>
-            &nbsp;&nbsp;
-            {this.state.selectNumberOfSeats} &nbsp;&nbsp;
-            <Button onClick={this.increment}>
-              {/* <Icon type="plus-square" /> */} +
-            </Button>
-            <br />
-            <DatePicker size="large" />
             <Row>
-              <Col lg={{ span: 10 }}>
+              <Col lg={{ span: 13 }}>
+                <h2 className="note">
+                  <b>Note : </b>You Can Select Multiple Seats{" "}
+                </h2>
+              </Col>
+            </Row>
+            <br />
+            <DatePicker
+              size="large"
+              disabledDate={this.disabledDate}
+              defaultValue={moment()}
+            />
+            &nbsp;&nbsp;&nbsp;
+            <Button onClick={this.decrement}> - </Button>
+            &nbsp;&nbsp;
+            <input
+              type="text"
+              value={this.state.selectNumberOfSeats}
+              id="selectNumberOfSeats"
+              onChange={e => {
+                if (e.target.value)
+                  this.setState({
+                    selectNumberOfSeats: parseInt(e.target.value)
+                  });
+                else
+                  this.setState({
+                    selectNumberOfSeats: ""
+                  });
+              }}
+            />{" "}
+            &nbsp;&nbsp;
+            <Button onClick={this.increment}> + </Button>
+            <br />
+            <Row>
+              <Col lg={{ span: 13 }}>
                 <Table
                   rowSelection={rowSelection}
                   columns={columns}
@@ -108,7 +147,7 @@ class BookSlots extends React.Component {
                 />
               </Col>
               <Col lg={{ span: 1 }} />
-              <Col lg={{ span: 8 }}>
+              <Col lg={{ span: 10 }}>
                 <NearestVenues />
               </Col>
             </Row>
@@ -116,18 +155,19 @@ class BookSlots extends React.Component {
             <Row>
               <Col lg={{ span: 10 }}>
                 <Table
-                  rowSelection={rowSelection1}
+                  /* rowSelection={rowSelection1} */
                   columns={columns}
                   dataSource={this.state.selectedData}
                   pagination={false}
                 />
               </Col>
-
               <Col lg={{ span: 1 }} />
-              <Col lg={{ span: 3 }}>
-                <Card> Select 1 slot of all the slots </Card>
+              <Col lg={{ span: 2 }}>
+                <Button onClick={this.changePrice} type="primary" shape="round">
+                  Select 1 slot of all the slots
+                </Button>
               </Col>
-              <Col lg={{ span: 1 }} />
+              <Col lg={{ span: 4 }} />
               <Col lg={{ span: 3 }}>
                 <Card>
                   When minimum criteria reaches, your slot will get finalised
@@ -140,7 +180,7 @@ class BookSlots extends React.Component {
             <br />
             <Row>
               <Col lg={{ offset: 6 }}>
-                <Button style={{ textAlign: "center" }}>
+                <Button type="primary" size="large">
                   Book Tickets and Pay
                 </Button>
               </Col>
@@ -149,6 +189,8 @@ class BookSlots extends React.Component {
 
           <Col lg={{ span: 2 }} />
         </Row>
+        <br />
+        <br />
       </div>
     );
   }
